@@ -1,0 +1,27 @@
+name: Nix build
+
+on:
+  pull_request: &conditions
+    branches:
+      - master
+    paths:
+      - ".github/workflows/mvn-test.yaml"
+      - "assembly.xml"
+      - "flake.lock"
+      - "flake.nix"
+      - "pom.xml"
+      - "src/**"
+  push:
+    <<: *conditions
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v19
+      - uses: DeterminateSystems/magic-nix-cache-action@v13
+
+      - name: nix build
+        run: |
+          nix build --print-build-logs
