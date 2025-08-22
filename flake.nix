@@ -35,7 +35,7 @@
             ];
           };
 
-          mvnHash = "sha256-TBBeR/YXJJmhEMvlmMmWl5vhda/GXB/wejTI5zAvAow=";
+          mvnHash = "sha256-f55NoFL198U0nRJavoou4eE03iVRLMh1Wcz4Eko2jH4=";
           mvnJdk = pkgs.jdk_headless;
 
           buildOffline = true;
