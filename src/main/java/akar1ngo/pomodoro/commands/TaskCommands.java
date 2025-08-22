@@ -1,16 +1,15 @@
 package akar1ngo.pomodoro.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import com.slack.api.bolt.App;
-import com.slack.api.model.block.LayoutBlock;
 import static com.slack.api.model.block.Blocks.*;
 import static com.slack.api.model.block.composition.BlockCompositions.*;
 
 import akar1ngo.pomodoro.models.UserTask;
-import akar1ngo.pomodoro.services.TimerService; 
+import akar1ngo.pomodoro.services.TimerService;
+import com.slack.api.bolt.App;
+import com.slack.api.model.block.LayoutBlock;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class TaskCommands {
 
@@ -25,8 +24,8 @@ public class TaskCommands {
    */
   private static void registerTask(App app, TimerService timerService) {
     app.command("/task", (req, ctx) -> {
-      var channelId       = req.getPayload().getChannelId();
-      var userId          = req.getPayload().getUserId();
+      var channelId = req.getPayload().getChannelId();
+      var userId = req.getPayload().getUserId();
       var taskDescription = req.getPayload().getText();
 
       timerService.submitTask(channelId, userId, taskDescription);
@@ -51,7 +50,8 @@ public class TaskCommands {
 
       List<LayoutBlock> blocks = new ArrayList<>();
       blocks.add(section(s -> s.text(markdownText("*All tasks:*"))));
-      tasks.stream()
+      tasks
+        .stream()
         .collect(Collectors.groupingBy(UserTask::getUserId))
         .forEach((user, userTasks) -> {
           blocks.add(divider());
@@ -61,7 +61,7 @@ public class TaskCommands {
             .map(task -> "• " + task.getTaskDescription())
             .collect(Collectors.joining(System.lineSeparator()));
           blocks.add(section(s -> s.text(markdownText(taskList))));
-      });
+        });
 
       return ctx.ack(r -> r.blocks(blocks));
     });
@@ -74,7 +74,7 @@ public class TaskCommands {
   private static void registerClearTasks(App app, TimerService timerService) {
     app.command("/clear-tasks", (req, ctx) -> {
       var channelId = req.getPayload().getChannelId();
-      var userId    = req.getPayload().getUserId();
+      var userId = req.getPayload().getUserId();
 
       timerService.clearTasks(channelId, userId);
 

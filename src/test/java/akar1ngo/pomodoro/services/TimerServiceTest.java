@@ -1,16 +1,15 @@
 package akar1ngo.pomodoro.services;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TimerServiceTest {
 
@@ -22,7 +21,6 @@ public class TimerServiceTest {
     testScheduler = Executors.newSingleThreadScheduledExecutor();
     timerService = new TimerService(testScheduler);
   }
-
 
   @Test
   public void testSubmitAndGetTasks() {
@@ -40,14 +38,12 @@ public class TimerServiceTest {
     assertEquals(taskDescription, task.getTaskDescription());
   }
 
-
   @Test
   public void testTasksEmpty() {
     var channelId = "channel1";
     var tasks = timerService.getTasks(channelId);
     assertTrue(tasks.isEmpty());
   }
-
 
   @Test
   public void testClearTasks() {
@@ -71,7 +67,6 @@ public class TimerServiceTest {
     assertEquals(taskDescription2, task.getTaskDescription());
   }
 
-
   @Test
   public void testTimerDuration() {
     var channelId = "channel1";
@@ -83,7 +78,6 @@ public class TimerServiceTest {
     assertEquals(duration, returnedDuration);
   }
 
-
   @Test
   public void testDefaultDuration() {
     var channelId = "channel1";
@@ -91,7 +85,6 @@ public class TimerServiceTest {
 
     assertEquals(30, defaultDuration);
   }
-
 
   @Test
   public void testIsTimerRunning() throws InterruptedException {
@@ -111,7 +104,6 @@ public class TimerServiceTest {
     assertFalse(timerService.isTimerRunning(channelId));
   }
 
-
   @Test
   public void testStartTimer() throws InterruptedException {
     var channelId = "channel1";
@@ -130,7 +122,6 @@ public class TimerServiceTest {
     // Ensure the timer is no longer running
     assertFalse(timerService.isTimerRunning(channelId));
   }
-
 
   @Test
   public void testStopTimer() throws InterruptedException {
@@ -156,7 +147,6 @@ public class TimerServiceTest {
     assertFalse(completed, "Timer was stopped, but onTimerComplete was called");
   }
 
-
   @Test
   public void testTaskClearedAfterCompletion() throws InterruptedException {
     var channelId = "channel1";
@@ -175,9 +165,11 @@ public class TimerServiceTest {
 
     // Tasks should be cleared
     var tasks = timerService.getTasks(channelId);
-    assertTrue(tasks.isEmpty(), "Tasks were not cleared after timer completion");
+    assertTrue(
+      tasks.isEmpty(),
+      "Tasks were not cleared after timer completion"
+    );
   }
-
 
   @Test
   public void testMultipleChannels() {
@@ -200,7 +192,6 @@ public class TimerServiceTest {
     assertEquals(taskDescription2, tasks2.get(0).getTaskDescription());
   }
 
-
   @Test
   public void testTimerIsolation() throws InterruptedException {
     var channelId1 = "channel1";
@@ -216,13 +207,15 @@ public class TimerServiceTest {
     timerService.startTimer(channelId1, latch1::countDown);
     timerService.startTimer(channelId2, latch2::countDown);
 
-
     timerService.stopTimer(channelId1);
     assertFalse(timerService.isTimerRunning(channelId1));
     assertTrue(timerService.isTimerRunning(channelId2));
 
     var completed1 = latch1.await(100, TimeUnit.MILLISECONDS);
-    assertFalse(completed1, "Timer for channelId1 stopped, yet onTimerComplete ran");
+    assertFalse(
+      completed1,
+      "Timer for channelId1 stopped, yet onTimerComplete ran"
+    );
 
     // Simulate timer completion for channelId2
     timerService.stopTimer(channelId2);

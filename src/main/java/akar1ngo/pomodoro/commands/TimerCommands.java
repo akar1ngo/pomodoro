@@ -1,16 +1,15 @@
 package akar1ngo.pomodoro.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import com.slack.api.bolt.App;
-import com.slack.api.model.block.LayoutBlock;
 import static com.slack.api.model.block.Blocks.*;
 import static com.slack.api.model.block.composition.BlockCompositions.*;
 
 import akar1ngo.pomodoro.models.UserTask;
 import akar1ngo.pomodoro.services.TimerService;
+import com.slack.api.bolt.App;
+import com.slack.api.model.block.LayoutBlock;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class TimerCommands {
 
@@ -25,7 +24,7 @@ public class TimerCommands {
    */
   private static void registerSetTimer(App app, TimerService timerService) {
     app.command("/set-timer", (req, ctx) -> {
-      var channelId   = req.getPayload().getChannelId();
+      var channelId = req.getPayload().getChannelId();
       var durationStr = req.getPayload().getText();
 
       int duration;
@@ -71,21 +70,30 @@ public class TimerCommands {
       // Notify users
       List<LayoutBlock> blocks = new ArrayList<>();
       var duration = timerService.getTimerDuration(channelId);
-      blocks.add(section(s -> s.text(
-        markdownText("*Pomodoro started for " + duration + " minutes*")))
+      blocks.add(
+        section(s ->
+          s.text(
+            markdownText("*Pomodoro started for " + duration + " minutes*")
+          )
+        )
       );
-      tasks.stream()
+      tasks
+        .stream()
         .collect(Collectors.groupingBy(UserTask::getUserId))
         .forEach((user, userTasks) -> {
-        blocks.add(divider());
-        blocks.add(section(s -> s.text(markdownText("*<@" + user + ">*"))));
-        var taskList = userTasks
-          .stream()
-          .map(task -> "• " + task.getTaskDescription())
-          .collect(Collectors.joining(System.lineSeparator()));
-        blocks.add(section(s -> s.text(markdownText(taskList))));
-      });
-      ctx.client().chatPostMessage(r -> r.channel(channelId).blocks(blocks).text("Started"));
+          blocks.add(divider());
+          blocks.add(section(s -> s.text(markdownText("*<@" + user + ">*"))));
+          var taskList = userTasks
+            .stream()
+            .map(task -> "• " + task.getTaskDescription())
+            .collect(Collectors.joining(System.lineSeparator()));
+          blocks.add(section(s -> s.text(markdownText(taskList))));
+        });
+      ctx
+        .client()
+        .chatPostMessage(r ->
+          r.channel(channelId).blocks(blocks).text("Started")
+        );
 
       // Schedule the timer
       timerService.startTimer(channelId, () -> {
@@ -108,7 +116,7 @@ public class TimerCommands {
   private static void registerStopTimer(App app, TimerService timerService) {
     app.command("/stop-timer", (req, ctx) -> {
       var channelId = req.getPayload().getChannelId();
-      var userId    = req.getPayload().getUserId();
+      var userId = req.getPayload().getUserId();
 
       if (timerService.isTimerRunning(channelId)) {
         timerService.stopTimer(channelId);

@@ -1,6 +1,7 @@
 package akar1ngo.pomodoro.models;
 
 public class UserTask {
+
   private final String userId;
   private final String taskDescription;
 
